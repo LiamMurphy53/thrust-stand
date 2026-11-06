@@ -1,0 +1,36 @@
+# builds the esp32-s3 firmware and commits the binaries the page flashes
+name: build firmware
+on:
+  push:
+    branches: [main]
+    paths: ['firmware/thrust_stand/**', '.github/workflows/firmware.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: install core and libraries
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.12
+          arduino-cli lib install "Adafruit NAU7802 Library"
+      - name: compile
+        run: |
+          # 4 mb flash, no psram: runs on both feather s3 variants
+          arduino-cli compile -b "esp32:esp32:adafruit_feather_esp32s3:PSRAM=disabled,FlashSize=4M,CDCOnBoot=cdc" --build-path build firmware/thrust_stand
+          cp build/thrust_stand.ino.bootloader.bin firmware/bin/bootloader.bin
+          cp build/thrust_stand.ino.partitions.bin firmware/bin/partitions.bin
+          cp build/boot_app0.bin firmware/bin/boot_app0.bin
+          cp build/thrust_stand.ino.bin firmware/bin/thrust_stand.bin
+      - name: commit binaries
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add firmware/bin
+          git diff --cached --quiet || (git commit -m "build firmware binaries" && git push)
