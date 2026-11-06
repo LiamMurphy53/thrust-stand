@@ -74,6 +74,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-o
 .plot{position:relative;flex:1;min-height:0;margin-top:8px}
 .plot canvas{position:absolute;inset:0;width:100%;height:100%}
 .rec-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff6b5e;margin-right:7px;vertical-align:1px}
+esp-web-install-button[hidden]{display:none}
 #record.on{background:#3a1d1d;border-color:#a14a43;color:#ffb3a8}
 @media (max-width:900px){
   body{overflow:auto;height:auto}
@@ -97,7 +98,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-o
     <button id="export-log" type="button" disabled>Export log</button>
     <button id="export-sweep" type="button" disabled>Export sweep</button>
   </div>
-  <div class="conn"><span id="msg" role="status"></span><span id="conn-status" class="status">Disconnected</span><button id="connect" type="button">Connect</button></div>
+  <div class="conn"><span id="msg" role="status"></span><span id="conn-status" class="status">Disconnected</span><esp-web-install-button id="flash" manifest="firmware/bin/manifest.json"><button slot="activate" type="button">Flash firmware</button><span slot="unsupported"></span><span slot="not-allowed"></span></esp-web-install-button><button id="connect" type="button">Connect</button></div>
 </header>
 <main>
   <aside class="panel controls">
@@ -153,6 +154,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-o
     </section>
   </div>
 </main>
+<script type="module" src="https://cdn.jsdelivr.net/npm/esp-web-tools@10.4.0/dist/web/install-button.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

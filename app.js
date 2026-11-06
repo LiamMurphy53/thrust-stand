@@ -234,6 +234,7 @@ function exportSweep() {
 function ui() {
   const c = st.connected;
   $('connect').textContent = c ? 'Disconnect' : 'Connect';
+  $('flash').hidden = c;  // flasher needs the port to itself
   const s = $('conn-status');
   s.textContent = !c ? 'Disconnected' : st.armed ? 'Armed' : 'Connected';
   s.className = 'status' + (!c ? '' : st.armed ? ' armed' : ' on');
