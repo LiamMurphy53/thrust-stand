@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thrust stand</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark;color:#e8eef4;background:#09111b;
+--bg:#09111b;--panel:#111e2b;--line:#294153;--field:#0b1723;--mute:#91a8b8;--teal:#75e0d1;--amber:#f3bd74}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;color:#e8eef4;background:radial-gradient(circle at 85% 0%,#17324b 0,transparent 37%),var(--bg);display:flex;flex-direction:column;overflow:hidden}
+header{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 22px;border-bottom:1px solid var(--line)}
+.brand{font-size:13px;letter-spacing:.2em;color:#66d6ca;font-weight:800;text-transform:uppercase}
+.conn{display:flex;align-items:center;gap:10px;min-width:0;margin-left:auto}
+.logbar{display:flex;align-items:center;gap:8px;margin-left:28px}
+.logbar input[type=text]{width:170px}
+.logbar .hint{margin:0 4px;white-space:nowrap}
+#msg{font-size:12px;color:var(--mute);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{border-radius:99px;padding:7px 11px;font-size:11px;font-weight:800;text-transform:uppercase;white-space:nowrap;background:#22303d;color:#9cb1c0}
+.status.on{background:#274d49;color:#80e9cf}
+.status.armed{background:#5c2626;color:#ffb3a8}
+main{flex:1;min-height:0;display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;padding:16px 22px 18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.controls{padding:16px 18px;overflow-y:auto;min-height:0;scrollbar-gutter:stable}
+.section+.section{border-top:1px solid var(--line);margin-top:13px;padding-top:13px}
+h3{font-size:11px;color:#74d5cb;text-transform:uppercase;letter-spacing:.16em;margin:0 0 10px}
+label{display:block;color:#c0cfda;font-size:12px;margin-bottom:5px}
+input[type=number],input[type=text]{width:100%;border:1px solid #3b5365;background:var(--field);color:#f2f7fb;border-radius:9px;padding:8px 10px;font:inherit;font-size:14px;outline:none;font-variant-numeric:tabular-nums}
+input:focus{border-color:#6be4d7;box-shadow:0 0 0 3px #6be4d726}
+input:disabled{opacity:.45}
+input[type=number]{appearance:textfield;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.unit{position:relative}.unit input{padding-right:40px}.unit span{position:absolute;right:10px;top:9px;color:#7e98a8;font-size:12px;pointer-events:none}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.row.cal{grid-template-columns:1fr auto auto;gap:8px;align-items:end}
+.row.lab{grid-template-columns:1fr auto;gap:8px;align-items:end}
+.btns.three button{padding:9px 8px}
+.field{margin-bottom:10px}
+button{font:inherit;font-size:13px;font-weight:700;border-radius:9px;padding:8px 12px;cursor:pointer;border:1px solid #4b746f;background:#10302f;color:#83e6d7;white-space:nowrap}
+button:hover:not(:disabled){background:#17413d}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.btns{display:flex;gap:8px}.btns button{flex:1}.btns+.btns{margin-top:8px}
+#arm.armed{background:#3a1d1d;border-color:#a14a43;color:#ffb3a8}
+#stop{background:#5c2626;border-color:#c0574d;color:#fff;font-size:15px;padding:11px}
+#stop:hover{background:#73302e}
+.throttle-read{display:flex;justify-content:space-between;align-items:baseline;margin:12px 0 0}
+.throttle-read strong{font-size:30px;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.throttle-read strong span{font-size:13px;color:#a2b5c1;font-weight:500;letter-spacing:0}
+.throttle-read output{color:var(--amber);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+.slider{appearance:none;-webkit-appearance:none;width:100%;height:8px;padding:0;margin:10px 0 12px;border:0;border-radius:99px;background:#304d57;cursor:pointer}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;background:var(--amber);border:2px solid #0d222a;border-radius:50%;box-shadow:0 0 0 1px var(--amber)}
+.slider::-moz-range-thumb{width:18px;height:18px;background:var(--amber);border:2px solid #0d222a;border-radius:50%}
+.slider:disabled{opacity:.35;cursor:default}
+.check{display:flex;align-items:center;gap:8px;font-size:12px;color:#c0cfda;margin:2px 0 0;cursor:pointer}
+.check input{accent-color:var(--teal);margin:0}
+.hint{font-size:12px;color:#8198a9;margin:6px 0 0;min-height:16px;font-variant-numeric:tabular-nums}
+.results{min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) minmax(0,1fr);gap:16px}
+.readouts{display:grid;grid-template-columns:1.7fr repeat(4,1fr)}
+.ro{padding:16px 18px;border-left:1px solid var(--line);min-width:0}.ro:first-child{border-left:0}
+.ro-label{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.1em}
+.ro strong{display:block;margin-top:8px;font-size:24px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ro strong span{font-size:13px;color:#a2b5c1;font-weight:500;letter-spacing:0}
+.ro small{display:block;color:#8297a5;font-size:12px;margin-top:4px;font-variant-numeric:tabular-nums}
+#thrust{font-size:46px;line-height:1;color:var(--teal)}
+#thrust span{font-size:18px}
+.chart{padding:14px 18px 12px;display:flex;flex-direction:column;min-height:0}
+.chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.chart-head h2{font-size:15px;margin:0}
+.legend{display:flex;gap:16px;color:#a1b5c3;font-size:11px}
+.legend i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend i.dot{width:7px;height:7px;border-radius:50%}
+.plot{position:relative;flex:1;min-height:0;margin-top:8px}
+.plot canvas{position:absolute;inset:0;width:100%;height:100%}
+.rec-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff6b5e;margin-right:7px;vertical-align:1px}
+#record.on{background:#3a1d1d;border-color:#a14a43;color:#ffb3a8}
+@media (max-width:900px){
+  body{overflow:auto;height:auto}
+  main{grid-template-columns:1fr}
+  .results{grid-template-rows:auto 300px 300px}
+  .readouts{grid-template-columns:1fr 1fr}
+  .ro{border-left:0;border-top:1px solid var(--line)}.ro:first-child{grid-column:1/-1;border-top:0}
+  #msg{display:none}
+  .logbar{margin-left:0;flex-wrap:wrap;order:3;width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Thrust stand</div>
+  <div class="logbar">
+    <input id="label" type="text" placeholder="Run label" aria-label="Run label" autocomplete="off">
+    <span class="hint" id="log-hint">0 rows</span>
+    <button id="record" type="button" disabled>Record</button>
+    <button id="clear" type="button">Clear</button>
+    <button id="export-log" type="button" disabled>Export log</button>
+    <button id="export-sweep" type="button" disabled>Export sweep</button>
+  </div>
+  <div class="conn"><span id="msg" role="status"></span><span id="conn-status" class="status">Disconnected</span><button id="connect" type="button">Connect</button></div>
+</header>
+<main>
+  <aside class="panel controls">
+    <div class="section">
+      <h3>Throttle</h3>
+      <div class="btns"><button id="arm" type="button" disabled>Arm</button><button id="stop" type="button" title="Esc or Space">Stop</button></div>
+      <div class="throttle-read"><strong id="us-read">1000 <span>µs</span></strong><output id="pct-read">0%</output></div>
+      <input id="slider" class="slider" type="range" min="1000" max="2000" step="5" value="1000" disabled aria-label="Throttle">
+      <div class="row">
+        <div><label for="us-input">Set</label><div class="unit"><input id="us-input" type="number" min="1000" max="2000" step="1" value="1000" disabled><span>µs</span></div></div>
+        <div><label for="max-us">Limit</label><div class="unit"><input id="max-us" type="number" min="1000" max="2000" step="10" value="2000"><span>µs</span></div></div>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Sweep</h3>
+      <div class="row">
+        <div><label for="sw-start">Start</label><div class="unit"><input id="sw-start" type="number" min="1000" max="2000" step="10" value="1100"><span>µs</span></div></div>
+        <div><label for="sw-end">End</label><div class="unit"><input id="sw-end" type="number" min="1000" max="2000" step="10" value="2000"><span>µs</span></div></div>
+      </div>
+      <div class="row">
+        <div><label for="sw-step">Step</label><div class="unit"><input id="sw-step" type="number" min="1" step="5" value="50"><span>µs</span></div></div>
+        <div><label for="sw-dwell">Dwell</label><div class="unit"><input id="sw-dwell" type="number" min="0.5" step="0.5" value="2"><span>s</span></div></div>
+      </div>
+      <div class="btns"><button id="sweep" type="button" disabled>Run sweep</button></div>
+      <p class="hint" id="sweep-hint"></p>
+    </div>
+    <div class="section">
+      <h3>Calibration</h3>
+      <div class="row cal">
+        <div><label for="cal-mass">Known mass</label><div class="unit"><input id="cal-mass" type="number" min="1" step="any" value="500"><span>g</span></div></div>
+        <button id="tare" type="button" disabled>Tare</button>
+        <button id="cal" type="button" disabled>Calibrate</button>
+      </div>
+      <label class="check"><input id="invert" type="checkbox">Invert sign</label>
+      <p class="hint" id="cal-hint">—</p>
+    </div>
+    </aside>
+  <div class="results">
+    <div class="panel readouts">
+      <div class="ro"><div class="ro-label">Thrust</div><strong id="thrust">—</strong><small id="thrust-n">— N</small></div>
+      <div class="ro"><div class="ro-label">ESC signal</div><strong id="ro-us">—</strong><small id="ro-pct">—</small></div>
+      <div class="ro"><div class="ro-label">Peak</div><strong id="ro-peak">—</strong><small id="ro-peak-n">—</small></div>
+      <div class="ro"><div class="ro-label">Sample rate</div><strong id="ro-rate">—</strong><small>&nbsp;</small></div>
+      <div class="ro"><div class="ro-label">Raw</div><strong id="ro-raw">—</strong><small>counts</small></div>
+    </div>
+    <section class="panel chart">
+      <div class="chart-head"><h2>Live</h2><div class="legend"><span><i style="background:var(--teal)"></i>Thrust (g)</span><span><i style="background:var(--amber)"></i>Throttle (%)</span></div></div>
+      <div class="plot"><canvas id="live" role="img" aria-label="Thrust and throttle over the last 20 seconds"></canvas></div>
+    </section>
+    <section class="panel chart">
+      <div class="chart-head"><h2>Thrust vs throttle</h2><div class="legend"><span><i class="dot" style="background:#75e0d166"></i>Logged</span><span><i class="dot" style="background:var(--amber)"></i>Sweep mean</span><span><i class="dot" style="background:none;border:1.5px solid var(--teal)"></i>Now</span></div></div>
+      <div class="plot"><canvas id="curve" role="img" aria-label="Thrust against throttle"></canvas></div>
+    </section>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
